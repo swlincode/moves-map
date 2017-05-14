@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Untitled Document</title>
+    <script src="https://d3js.org/d3.v3.js"></script>
+    <script src="topojson.min.js"></script>
+    <style>
+        .map-boundary {
+          stroke: #eee;
+        }
+    </style>
+</head>
+<body>
+    <svg width="1200" height="700"></svg>
+    
+    <script>
+        //1.地理資料檔: GeoJSON or TopoJSON
+        
+        // 2.地理投影器: 設定投影方式(麥卡托)、定位點([經度,緯度])、縮放(scale)
+            var projection = d3.geo.mercator().center([121,35]).scale(1000);
+        
+        d3.json("world-map-geo.json", function(wDataSet) {
+            
+//            console.log(wDataSet);.place.location["lat"]
+            
+             d3.json("move-places.json",function(moveDataSet){
+            
+//                 console.log(moveDataSet);
+//                 console.log(projection(moveDataSet.features[0].properties.place.location['lat'])[0])
+                 
+//                 var fMoveDataSet = d3.nest()
+//                                    .key(function(d){
+//                                        return d.properties;
+//                                    })
+////                                        .rollup(function(v){
+////                                        return v.length;
+////                                     })
+//                                        .entries(moveDataSet);
+//                 
+//                 console.log(fMoveDataSet)
+                 
+                bind(wDataSet, moveDataSet);
+                render(wDataSet, moveDataSet); 
+             })
+        });
+   
+           
+        
+        
+        function render(x, moveDataSet){
+            console.log(moveDataSet.features[0].geometry.coordinates);
+            console.log(projection(moveDataSet.features[0].geometry.coordinates[0],
+                                              moveDataSet.features[0].geometry.coordinates[1]
+                                             ))
+            //從這裡開始修改
+            var fScale = d3.scale.category20c();
+//            var tmp_color;
+            
+            d3.selectAll("path")
+//            .append("path")
+            .attr({
+                fill: function(d,i){
+//                    return fScale(i);
+                      return "gray";
+                }
+                
+            })
+            d3.selectAll("circle")
+            .attr({
+                cx: function(d){
+//                            return projection([d.properties.place.location.lat])
+                            return projection([d.geometry.coordinates[0],
+                                              d.geometry.coordinates[1]]
+                                             )[0]
+                    
+                                
+                        },
+//                    
+//                    for (i = 0; i < d.length; i++) { 
+//                        return projection(d.features[i].properties.place.location.lon);
+//                    };
+               
+                cy: function(d){
+                            return projection([d.geometry.coordinates[0],
+                                              d.geometry.coordinates[1]]
+                                             )[1]
+//                            return projection([d.properties.place.location.lon])
+//                                return projection([d.properties.place.location['lon']],
+//                                               [d.properties.place.location['lat']])[1]
+//                            return projection([d.properties.place.location['lon']],
+//                                               [d.properties.place.location['lat']])[1];
+//                    return projection([d["點X"],d["點Y"]])[0]
+//                    return projection([d["lat"],d["lot"]])[1];
+//                    for (i = 0; i < d.length; i++) { 
+//                        return projection(d.features[i].properties.place.location.lat);
+//                    };
+                },
+                r: 2,
+                fill: "red"
+            })
+            ;
+//////            
+            
+            
+            
+            
+            
+        }
+        function bind(wDataSet, moveDataSet){ 
+                   
+            
+            // 3.路徑產生器: d3.geo.path()
+            var path = d3.geo.path().projection(projection);
+            
+//            // 4.地理資料檔: 使用topojson.js載入地理資料
+//            var geoRoot = topojson.feature(topoRoot, topoRoot.objects["COUNTY_MOI_1051214"]);
+            
+//            var geoRoot = topoRoot;
+//            console.log(geoRoot)
+
+//             綁定path與載入的地理資料(features:每一地理區劃)
+            var selection = d3.select("svg")
+//                .selectAll("path").data(geoRoot.geometeries);
+                                    .selectAll("path")
+                                    .data(wDataSet.features);
+            selection.enter().append("path")
+                                    .classed("map-boundary", true).attr("d", path);
+            selection.exit().remove();
+//            把map-boundary加到path裡
+            
+            
+            
+            var selection_move = d3.select("svg")
+                                    .selectAll("circle")
+                                    .data(moveDataSet.features);
+            selection_move.enter().append("circle")
+//                                    .classed("map-boundary", true).attr("d", path);
+            selection_move.exit().remove();
+            
+            
+        }
+    </script>
+
+</body>
+</html>
