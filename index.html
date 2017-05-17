@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Untitled Document</title>
+    <title>Moves Map</title>
     <script src="https://d3js.org/d3.v3.js"></script>
     <script src="topojson.min.js"></script>
     <style>
@@ -18,7 +18,9 @@
         //1.地理資料檔: GeoJSON or TopoJSON
         
         // 2.地理投影器: 設定投影方式(麥卡托)、定位點([經度,緯度])、縮放(scale)
-            var projection = d3.geo.mercator().center([121,35]).scale(1000);
+            var projection = d3.geo.mercator()
+                            .center([116,24])
+                            .scale(7000);
         
         d3.json("world-map-geo.json", function(wDataSet) {
             
@@ -61,8 +63,8 @@
 //            .append("path")
             .attr({
                 fill: function(d,i){
-//                    return fScale(i);
-                      return "gray";
+                    return fScale(i);
+//                      return "gray";
                 }
                 
             })
@@ -97,7 +99,7 @@
 //                    };
                 },
                 r: 2,
-                fill: "red"
+                fill: "#ff00c4"
             })
             ;
 //////            
